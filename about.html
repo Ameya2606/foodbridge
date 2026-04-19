@@ -107,10 +107,13 @@
       <li><a href="about.html" class="active">About</a></li>
       <li><a href="how-it-works.html">How It Works</a></li>
       <li><a href="contact.html">Contact</a></li>
-      <li><a href="volunteer-dashboard.html">Dashboard</a></li>
+      <li id="nav-dashboard" style="display:none;"><a href="volunteer-dashboard.html">Dashboard</a></li>
+      <li id="nav-login"><a href="auth.html" style="font-weight: 600;">Login</a></li>
+      <li id="nav-logout" style="display:none;"><a href="#" onclick="logoutUser()" style="color:var(--error); font-weight:700;">Logout</a></li>
       <li><a href="donate.html" class="nav-cta">Donate Food</a></li>
     </ul>
   </nav>
+  <script src="nav-auth.js"></script>
 
   <!-- PAGE HERO -->
   <div class="page-hero">

@@ -73,10 +73,11 @@
       <li><a href="about.html">About</a></li>
       <li><a href="how-it-works.html">How It Works</a></li>
       <li><a href="contact.html">Contact</a></li>
-      <li><a href="volunteer-dashboard.html" class="active">Dashboard</a></li>
-      <li><a href="#" onclick="logout()" style="color:var(--error); font-weight:700;">Logout</a></li>
+      <li id="nav-dashboard"><a href="volunteer-dashboard.html" class="active">Dashboard</a></li>
+      <li id="nav-logout"><a href="#" onclick="logoutUser()" style="color:var(--error); font-weight:700;">Logout</a></li>
     </ul>
   </nav>
+  <script src="nav-auth.js"></script>
 
   <!-- PAGE HERO -->
   <div class="page-hero">
@@ -107,12 +108,6 @@
 
     // Security check
     if (!token || localStorage.getItem('fb_role') !== 'admin') {
-        window.location.href = 'auth.html';
-    }
-
-    function logout() {
-        localStorage.removeItem('fb_token');
-        localStorage.removeItem('fb_role');
         window.location.href = 'auth.html';
     }
 
