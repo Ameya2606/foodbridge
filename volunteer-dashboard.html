@@ -74,13 +74,13 @@
       <li><a href="how-it-works.html">How It Works</a></li>
       <li><a href="contact.html">Contact</a></li>
       <li><a href="volunteer-dashboard.html" class="active">Dashboard</a></li>
-      <li><a href="donate.html" class="nav-cta">Donate Food</a></li>
+      <li><a href="#" onclick="logout()" style="color:var(--error); font-weight:700;">Logout</a></li>
     </ul>
   </nav>
 
   <!-- PAGE HERO -->
   <div class="page-hero">
-    <h1>Volunteer Dashboard</h1>
+    <h1>Admin Dashboard</h1>
     <p>View active requests from donors in your region. Claim a request below and head out to rescue food.</p>
   </div>
 
@@ -103,11 +103,25 @@
   <script>
     const taskGrid = document.getElementById('task-grid');
     const taskCount = document.getElementById('task-count');
+    const token = localStorage.getItem('fb_token');
+
+    // Security check
+    if (!token || localStorage.getItem('fb_role') !== 'admin') {
+        window.location.href = 'auth.html';
+    }
+
+    function logout() {
+        localStorage.removeItem('fb_token');
+        localStorage.removeItem('fb_role');
+        window.location.href = 'auth.html';
+    }
 
     // Fetch tasks
     async function loadTasks() {
         try {
-            const response = await fetch('/api/tasks');
+            const response = await fetch('/api/tasks', {
+                headers: { 'Authorization': 'Bearer ' + token }
+            });
             if (response.ok) {
                 const tasks = await response.json();
                 taskCount.textContent = `${tasks.length} Task${tasks.length !== 1 ? 's' : ''}`;
@@ -168,7 +182,10 @@
         try {
             const response = await fetch('/api/tasks/pickup', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                },
                 body: JSON.stringify({ id, source })
             });
 

@@ -2,6 +2,10 @@ const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const cors = require('cors');
 const path = require('path');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+
+const JWT_SECRET = 'super-secret-foodbridge-key-2026';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -74,7 +78,47 @@ function createTables() {
             email TEXT NOT NULL UNIQUE,
             subscribed_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )`);
+
+        // Users table
+        db.run(`CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT NOT NULL UNIQUE,
+            password_hash TEXT NOT NULL,
+            role TEXT DEFAULT 'user',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )`, () => {
+            // Seed admins automatically upon restart
+            const admins = ['ayushpund11', 'ameyabhagwat11'];
+            admins.forEach(admin => {
+                db.get(`SELECT id FROM users WHERE username = ?`, [admin], (err, row) => {
+                    if (!err && !row) {
+                        const hash = bcrypt.hashSync('FoodBidge', 10);
+                        db.run(`INSERT INTO users (username, password_hash, role) VALUES (?, ?, 'admin')`, [admin, hash]);
+                    }
+                });
+            });
+        });
     });
+}
+
+// Middleware: Authenticate Admin Access
+function authenticateAdmin(req, res, next) {
+    const authHeader = req.headers['authorization'];
+    if (!authHeader) return res.status(401).json({ error: 'Access denied. No token provided.' });
+    
+    const token = authHeader.split(' ')[1];
+    if (!token) return res.status(401).json({ error: 'Access denied. Invalid token.' });
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        if (decoded.role !== 'admin') {
+            return res.status(403).json({ error: 'Access forbidden. Admins only.' });
+        }
+        req.user = decoded;
+        next();
+    } catch (ex) {
+        res.status(400).json({ error: 'Invalid token.' });
+    }
 }
 
 // Routes
@@ -159,8 +203,47 @@ app.post('/api/newsletter', (req, res) => {
     stmt.finalize();
 });
 
-// 6. Get Volunteer Tasks
-app.get('/api/tasks', (req, res) => {
+// --- AUTHENTICATION ROUTES ---
+
+// Signup Route
+app.post('/api/signup', async (req, res) => {
+    const { username, password } = req.body;
+    if (!username || !password) return res.status(400).json({ error: 'Username and password required.' });
+
+    try {
+        const hash = bcrypt.hashSync(password, 10);
+        db.run(`INSERT INTO users (username, password_hash, role) VALUES (?, ?, 'user')`, [username, hash], function(err) {
+            if (err) {
+                if (err.message.includes('UNIQUE')) return res.status(400).json({ error: 'Username already exists.' });
+                return res.status(500).json({ error: err.message });
+            }
+            res.status(201).json({ message: 'User registered successfully!' });
+        });
+    } catch (err) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Login Route
+app.post('/api/login', (req, res) => {
+    const { username, password } = req.body;
+    if (!username || !password) return res.status(400).json({ error: 'Username and password required.' });
+
+    db.get(`SELECT * FROM users WHERE username = ?`, [username], (err, user) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (!user) return res.status(400).json({ error: 'Invalid username or password.' });
+
+        const validPassword = bcrypt.compareSync(password, user.password_hash);
+        if (!validPassword) return res.status(400).json({ error: 'Invalid username or password.' });
+
+        const token = jwt.sign({ id: user.id, username: user.username, role: user.role }, JWT_SECRET, { expiresIn: '8h' });
+        res.json({ message: 'Logged in successfully', token, role: user.role });
+    });
+});
+
+
+// 6. Get Volunteer Tasks (ADMIN ONLY)
+app.get('/api/tasks', authenticateAdmin, (req, res) => {
     const donationsQuery = `SELECT id, name, phone, food_type, food_condition, quantity, pickup_time, address, status, created_at, 'donation' as source FROM donations WHERE status = 'Pending'`;
     const pickupsQuery = `SELECT id, name, phone, 'Quick Request' as food_type, NULL as food_condition, NULL as quantity, NULL as pickup_time, address, status, created_at, 'quick_pickup' as source FROM pickup_requests WHERE status = 'Pending'`;
 
@@ -170,8 +253,8 @@ app.get('/api/tasks', (req, res) => {
     });
 });
 
-// 7. Mark Task as Picked Up
-app.post('/api/tasks/pickup', (req, res) => {
+// 7. Mark Task as Picked Up (ADMIN ONLY)
+app.post('/api/tasks/pickup', authenticateAdmin, (req, res) => {
     const { id, source } = req.body;
     if (!id || !source) {
         return res.status(400).json({ error: 'Missing required fields: id, source.' });

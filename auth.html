@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FoodBridge – Authentication</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --green-dark:  #1a3c2e; --green-mid: #2d6a4f; --green-light: #52b788;
+      --accent: #f4a261; --white: #ffffff; --off-white: #f8faf7;
+      --text-dark: #1a1a1a; --text-muted: #5a6a60; --error: #e63946;
+      --font-head: 'Playfair Display', serif; --font-body: 'DM Sans', sans-serif;
+      --radius: 12px; --shadow: 0 4px 24px rgba(0,0,0,0.08);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-body); background: var(--off-white); min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+    /* NAVBAR MINIMAL */
+    nav { position: fixed; top: 0; left: 0; right: 0; padding: 1.5rem 6%; background: var(--green-dark); display: flex; justify-content: center; box-shadow: var(--shadow); }
+    .logo { font-family: var(--font-head); font-size: 1.8rem; color: var(--white); text-decoration: none; }
+    .logo span { color: var(--accent); }
+
+    .auth-container { background: var(--white); width: 100%; max-width: 420px; padding: 2.5rem; border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid #dde8e1; margin-top: 5rem; }
+    .auth-header { text-align: center; margin-bottom: 2rem; }
+    .auth-header h2 { font-family: var(--font-head); color: var(--green-dark); font-size: 1.8rem; margin-bottom: 0.5rem; }
+    .auth-header p { color: var(--text-muted); font-size: 0.95rem; }
+
+    .tabs { display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 2px solid #dde8e1; }
+    .tab-btn { flex: 1; padding: 0.8rem; background: none; border: none; font-family: var(--font-body); font-weight: 600; font-size: 1rem; color: var(--text-muted); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; position: relative; bottom: -2px; }
+    .tab-btn.active { color: var(--green-dark); border-bottom-color: var(--green-mid); }
+
+    .form-group { margin-bottom: 1.2rem; }
+    .form-group label { display: block; margin-bottom: 0.4rem; font-weight: 600; color: var(--green-dark); font-size: 0.9rem; }
+    .form-group input { width: 100%; padding: 0.8rem 1rem; border: 1px solid #c8dbd0; border-radius: 8px; font-family: var(--font-body); outline: none; transition: border-color 0.2s; }
+    .form-group input:focus { border-color: var(--green-mid); }
+
+    .btn-submit { width: 100%; background: var(--green-mid); color: var(--white); padding: 0.9rem; border: none; border-radius: 8px; font-family: var(--font-body); font-weight: 700; font-size: 1rem; cursor: pointer; transition: background 0.2s; margin-top: 1rem; }
+    .btn-submit:hover { background: var(--green-dark); }
+    
+    .msg-box { margin-top: 1rem; padding: 0.8rem; border-radius: 8px; font-size: 0.9rem; text-align: center; display: none; }
+    .msg-error { background: #ffebeb; color: var(--error); border: 1px solid #ffcdcd; }
+    .msg-success { background: var(--green-pale, #d8f3dc); color: var(--green-dark); border: 1px solid #b7e4c7; }
+
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="index.html" class="logo">🌿 Food<span>Bridge</span></a>
+  </nav>
+
+  <div class="auth-container">
+    <div class="auth-header">
+      <h2 id="auth-title">Welcome Back</h2>
+      <p id="auth-subtitle">Sign in to access the dashboard</p>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" id="tab-login" onclick="switchTab('login')">Login</button>
+      <button class="tab-btn" id="tab-signup" onclick="switchTab('signup')">Sign Up</button>
+    </div>
+
+    <form id="auth-form">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" placeholder="Enter your username" required autocomplete="username"/>
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Enter your password" required autocomplete="current-password"/>
+      </div>
+      <button type="submit" class="btn-submit" id="btn-submit">Sign In</button>
+      
+      <div id="form-msg" class="msg-box"></div>
+    </form>
+  </div>
+
+  <script>
+    let mode = 'login'; // login | signup
+
+    // If already logged in, skip auth
+    if (localStorage.getItem('fb_token')) {
+        const role = localStorage.getItem('fb_role');
+        if (role === 'admin') window.location.href = 'volunteer-dashboard.html';
+        else window.location.href = 'index.html';
+    }
+
+    function switchTab(newMode) {
+        mode = newMode;
+        document.getElementById('form-msg').style.display = 'none';
+        
+        if (mode === 'login') {
+            document.getElementById('tab-login').classList.add('active');
+            document.getElementById('tab-signup').classList.remove('active');
+            document.getElementById('auth-title').textContent = 'Welcome Back';
+            document.getElementById('auth-subtitle').textContent = 'Sign in to access the dashboard';
+            document.getElementById('btn-submit').textContent = 'Sign In';
+        } else {
+            document.getElementById('tab-signup').classList.add('active');
+            document.getElementById('tab-login').classList.remove('active');
+            document.getElementById('auth-title').textContent = 'Create Account';
+            document.getElementById('auth-subtitle').textContent = 'Join the FoodBridge community';
+            document.getElementById('btn-submit').textContent = 'Sign Up';
+        }
+    }
+
+    function showMsg(text, isError = false) {
+        const el = document.getElementById('form-msg');
+        el.textContent = text;
+        el.className = isError ? 'msg-box msg-error' : 'msg-box msg-success';
+        el.style.display = 'block';
+    }
+
+    document.getElementById('auth-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('btn-submit');
+        btn.disabled = true;
+        btn.textContent = 'Processing...';
+
+        const endpoint = mode === 'login' ? '/api/login' : '/api/signup';
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
+
+        try {
+            const res = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                showMsg(data.message, false);
+                if (mode === 'signup') {
+                    // Switch to login on successful signup
+                    setTimeout(() => { switchTab('login'); document.getElementById('auth-form').reset(); }, 2000);
+                } else {
+                    // Successfully logged in
+                    localStorage.setItem('fb_token', data.token);
+                    localStorage.setItem('fb_role', data.role);
+                    
+                    // Route based on admin logic
+                    setTimeout(() => {
+                        window.location.href = data.role === 'admin' ? 'volunteer-dashboard.html' : 'index.html';
+                    }, 1000);
+                }
+            } else {
+                showMsg(data.error || 'Request failed', true);
+            }
+        } catch (err) {
+            showMsg('Network error connecting to server.', true);
+        } finally {
+            btn.disabled = false;
+            btn.textContent = mode === 'login' ? 'Sign In' : 'Sign Up';
+        }
+    });
+
+  </script>
+</body>
+</html>
