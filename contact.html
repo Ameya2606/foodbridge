@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FoodBridge – Contact Us</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --green-dark:  #1a3c2e; --green-mid: #2d6a4f; --green-light: #52b788;
+      --green-pale:  #d8f3dc; --accent: #f4a261; --white: #ffffff;
+      --off-white:   #f8faf7; --text-dark: #1a1a1a; --text-muted: #5a6a60;
+      --font-head:   'Playfair Display', serif; --font-body: 'DM Sans', sans-serif;
+      --radius: 12px; --shadow: 0 4px 24px rgba(0,0,0,0.08);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-body); color: var(--text-dark); background: var(--off-white); overflow-x: hidden; }
+    a { text-decoration: none; color: inherit; }
+
+    /* NAVBAR */
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 1rem 6%; background: rgba(26,60,46,0.96); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .logo { font-family: var(--font-head); font-size: 1.5rem; color: var(--white); display: flex; align-items: center; gap: 0.5rem; }
+    .logo span { color: var(--accent); }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a { color: rgba(255,255,255,0.8); font-size: 0.95rem; font-weight: 500; transition: color 0.2s; }
+    .nav-links a:hover, .nav-links a.active { color: var(--accent); }
+    .nav-cta { background: var(--accent); color: var(--green-dark) !important; padding: 0.5rem 1.2rem; border-radius: 999px; font-weight: 600 !important; }
+    .nav-cta:hover { background: #e8914f; }
+
+    /* PAGE HERO */
+    .page-hero { min-height: 300px; background: linear-gradient(135deg, rgba(26,60,46,0.95) 0%, rgba(45,106,79,0.88) 100%), url('https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=1400&q=80') center/cover no-repeat; display: flex; align-items: center; justify-content: center; text-align: center; padding: 8rem 6% 3rem; }
+    .page-hero h1 { font-family: var(--font-head); font-size: clamp(2rem,5vw,3.5rem); color: var(--white); margin-bottom: 0.75rem; }
+    .page-hero p { color: rgba(255,255,255,0.75); font-size: 1.05rem; max-width: 500px; margin: 0 auto; }
+
+    /* CONTACT LAYOUT */
+    .contact-section { padding: 5rem 6%; display: flex; gap: 3rem; flex-wrap: wrap; max-width: 1100px; margin: 0 auto; }
+
+    /* CONTACT INFO CARDS */
+    .info-col { flex: 1; min-width: 260px; display: flex; flex-direction: column; gap: 1.2rem; }
+    .info-card { background: var(--white); border: 1px solid #dde8e1; border-radius: var(--radius); padding: 1.5rem 1.8rem; display: flex; align-items: flex-start; gap: 1rem; box-shadow: var(--shadow); transition: transform 0.2s; }
+    .info-card:hover { transform: translateY(-3px); }
+    .info-card .ic-icon { font-size: 1.8rem; flex-shrink: 0; }
+    .info-card h4 { font-weight: 700; color: var(--green-dark); margin-bottom: 0.25rem; }
+    .info-card p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; }
+    .info-card a { color: var(--green-mid); font-weight: 500; }
+
+    /* HOURS TABLE */
+    .hours-card { background: var(--green-dark); border-radius: var(--radius); padding: 1.8rem; color: var(--white); }
+    .hours-card h4 { font-family: var(--font-head); font-size: 1.2rem; color: var(--accent); margin-bottom: 1rem; }
+    .hours-row { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 0.88rem; }
+    .hours-row:last-child { border-bottom: none; }
+    .hours-row span:first-child { color: rgba(255,255,255,0.7); }
+    .hours-row span:last-child { color: var(--accent); font-weight: 600; }
+
+    /* FORM COL */
+    .form-col { flex: 1.5; min-width: 300px; }
+    .form-card { background: var(--white); border: 1px solid #dde8e1; border-radius: var(--radius); padding: 2.5rem; box-shadow: var(--shadow); }
+    .form-card h3 { font-family: var(--font-head); font-size: 1.6rem; color: var(--green-dark); margin-bottom: 0.3rem; }
+    .form-card .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2rem; }
+
+    /* REASON SELECTOR */
+    .reason-grid { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .reason-chip { padding: 0.4rem 1rem; border: 1.5px solid #c8dbd0; border-radius: 999px; font-size: 0.82rem; cursor: pointer; transition: background 0.2s, border-color 0.2s; color: var(--text-muted); background: var(--off-white); }
+    .reason-chip.selected { background: var(--green-mid); color: var(--white); border-color: var(--green-mid); }
+
+    /* FORM FIELDS */
+    .form-group { margin-bottom: 1.2rem; }
+    .form-group label { display: block; font-size: 0.88rem; font-weight: 600; color: var(--green-dark); margin-bottom: 0.4rem; }
+    .form-group input, .form-group textarea { width: 100%; padding: 0.75rem 1rem; border: 1.5px solid #c8dbd0; border-radius: 8px; font-family: var(--font-body); font-size: 0.95rem; color: var(--text-dark); background: var(--white); transition: border-color 0.2s; outline: none; }
+    .form-group input:focus, .form-group textarea:focus { border-color: var(--green-light); }
+    .form-group textarea { resize: vertical; min-height: 120px; }
+    .form-row { display: flex; gap: 1rem; }
+    .form-row .form-group { flex: 1; }
+    .error-msg { color: #e05252; font-size: 0.82rem; margin-top: 0.3rem; display: none; }
+
+    .btn-submit { width: 100%; background: var(--green-mid); color: var(--white); padding: 0.9rem; border: none; border-radius: 999px; font-family: var(--font-body); font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 0.5rem; transition: background 0.2s, transform 0.2s; }
+    .btn-submit:hover { background: var(--green-dark); transform: translateY(-1px); }
+    #c-success { display: none; background: var(--green-pale); color: var(--green-dark); border-radius: 8px; padding: 1.2rem; text-align: center; font-weight: 600; margin-top: 1rem; }
+
+    /* FOOTER */
+    footer { background: var(--green-dark); color: rgba(255,255,255,0.7); padding: 3rem 6% 2rem; margin-top: 2rem; }
+    .footer-top { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 2rem; padding-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 1.5rem; }
+    .footer-brand p { font-size: 0.88rem; max-width: 240px; line-height: 1.6; margin-top: 0.5rem; }
+    .footer-links h4 { color: var(--white); font-size: 0.9rem; font-weight: 700; margin-bottom: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; }
+    .footer-links ul { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+    .footer-links a { font-size: 0.88rem; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--accent); }
+    .footer-bottom { text-align: center; font-size: 0.82rem; color: rgba(255,255,255,0.4); }
+    @media (max-width: 720px) { .nav-links { display: none; } .form-row { flex-direction: column; } .contact-section { padding: 3rem 4%; } }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav>
+    <a href="index.html" class="logo">🌿 Food<span>Bridge</span></a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="how-it-works.html">How It Works</a></li>
+      <li><a href="contact.html" class="active">Contact</a></li>
+      <li><a href="volunteer-dashboard.html">Dashboard</a></li>
+      <li><a href="donate.html" class="nav-cta">Donate Food</a></li>
+    </ul>
+  </nav>
+
+  <!-- PAGE HERO -->
+  <div class="page-hero">
+    <div>
+      <h1>Contact Us</h1>
+      <p>Have a question, feedback, or want to partner with us? We'd love to hear from you.</p>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div style="background: var(--off-white);">
+    <div class="contact-section">
+
+      <!-- INFO COLUMN -->
+      <div class="info-col">
+
+        <div class="info-card">
+          <span class="ic-icon">📞</span>
+          <div>
+            <h4>Phone</h4>
+            <p><a href="tel:+919876543210">+91 98765 43210</a></p>
+            <p>Mon – Sat, 9 AM – 7 PM</p>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <span class="ic-icon">📧</span>
+          <div>
+            <h4>Email</h4>
+            <p><a href="/cdn-cgi/l/email-protection#d0b9beb6bf90b6bfbfb4b2a2b9b4b7b5febfa2b7"><span class="__cf_email__" data-cfemail="e881868e87a88e87878c8a9a818c8f8dc6879a8f">[email&#160;protected]</span></a></p>
+            <p>We reply within 24 hours</p>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <span class="ic-icon">📍</span>
+          <div>
+            <h4>Address</h4>
+            <p>FoodBridge NGO,<br/>Near FC Road, Shivajinagar,<br/>Pune – 411005, Maharashtra</p>
+          </div>
+        </div>
+
+        <!-- Office Hours -->
+        <div class="hours-card">
+          <h4>🕐 Office Hours</h4>
+          <div class="hours-row"><span>Monday – Friday</span><span>9 AM – 7 PM</span></div>
+          <div class="hours-row"><span>Saturday</span><span>9 AM – 4 PM</span></div>
+          <div class="hours-row"><span>Sunday</span><span>Closed</span></div>
+          <div class="hours-row"><span>Emergency Pickup</span><span>24 / 7</span></div>
+        </div>
+
+      </div>
+
+      <!-- FORM COLUMN -->
+      <div class="form-col">
+        <div class="form-card">
+          <h3>Send Us a Message</h3>
+          <p class="subtitle">Choose a reason and fill in your details below.</p>
+
+          <!-- REASON CHIPS -->
+          <div class="reason-grid" id="reason-grid">
+            <span class="reason-chip selected" onclick="selectReason(this)">General Enquiry</span>
+            <span class="reason-chip" onclick="selectReason(this)">Food Donation</span>
+            <span class="reason-chip" onclick="selectReason(this)">Volunteer</span>
+            <span class="reason-chip" onclick="selectReason(this)">Partnership</span>
+            <span class="reason-chip" onclick="selectReason(this)">Feedback</span>
+          </div>
+
+          <form id="contact-form" novalidate>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="c-name">Full Name</label>
+                <input type="text" id="c-name" placeholder="e.g. Meera Joshi"/>
+                <span class="error-msg" id="c-name-err">Please enter your name.</span>
+              </div>
+              <div class="form-group">
+                <label for="c-phone">Phone</label>
+                <input type="tel" id="c-phone" placeholder="10-digit number"/>
+                <span class="error-msg" id="c-phone-err">Enter a valid 10-digit number.</span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="c-email">Email Address</label>
+              <input type="email" id="c-email" placeholder="e.g. meera@gmail.com"/>
+              <span class="error-msg" id="c-email-err">Please enter a valid email.</span>
+            </div>
+            <div class="form-group">
+              <label for="c-msg">Your Message</label>
+              <textarea id="c-msg" placeholder="Tell us how we can help..."></textarea>
+              <span class="error-msg" id="c-msg-err">Please enter a message.</span>
+            </div>
+            <button type="submit" class="btn-submit">Send Message 🌿</button>
+            <div id="c-success">✅ Thank you! We'll get back to you within 24 hours.</div>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="logo">🌿 Food<span>Bridge</span></div>
+        <p>Fighting hunger one meal at a time.</p>
+      </div>
+      <div class="footer-links">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="how-it-works.html">How It Works</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h4>Contact</h4>
+        <ul>
+          <li><a href="#"><span class="__cf_email__" data-cfemail="771e191118371118181315051e13101259180510">[email&#160;protected]</span></a></li>
+          <li><a href="#">+91 98765 43210</a></li>
+          <li><a href="#">Pune, Maharashtra</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">&copy; 2025 FoodBridge NGO. All rights reserved. | Made with 💚 for a better world.</div>
+  </footer>
+
+  <script>
+  // ============================================================
+  //  CONTACT.HTML — JavaScript Validation
+  //  Form: Send Us a Message
+  //
+  //  Validations:
+  //    - Name: required
+  //    - Phone: required, exactly 10 digits
+  //    - Email: required, valid format
+  //    - Message: required, min 10 characters
+  //
+  //  Features:
+  //    - Reason chip selector (General / Donation / Volunteer etc.)
+  //    - Real-time blur validation with red/green border feedback
+  //    - Phone input strips non-digits automatically
+  //    - Character counter on message field
+  //    - All errors shown at once on submit
+  // ============================================================
+
+  // --- Reason chip selector ---
+  function selectReason(el) {
+    document.querySelectorAll('.reason-chip').forEach(function(c) {
+      c.classList.remove('selected');
+    });
+    el.classList.add('selected');
+  }
+
+  // --- Shared helpers ---
+  function setErr(id, errId, msg) {
+    var el = document.getElementById(errId);
+    el.textContent = msg;
+    el.style.display = 'block';
+    document.getElementById(id).style.borderColor = '#e05252';
+  }
+  function clrErr(id, errId) {
+    document.getElementById(errId).style.display = 'none';
+    document.getElementById(id).style.borderColor = '#52b788';
+  }
+
+  // --- Individual validators ---
+  function valName() {
+    var v = document.getElementById('c-name').value.trim();
+    if (!v)           { setErr('c-name','c-name-err','Name is required.');                    return false; }
+    if (v.length < 2) { setErr('c-name','c-name-err','Name must be at least 2 characters.'); return false; }
+    clrErr('c-name','c-name-err'); return true;
+  }
+  function valPhone() {
+    var v = document.getElementById('c-phone').value.trim();
+    if (!v)                  { setErr('c-phone','c-phone-err','Phone number is required.');          return false; }
+    if (!/^\d{10}$/.test(v)) { setErr('c-phone','c-phone-err','Must be exactly 10 digits.'); return false; }
+    clrErr('c-phone','c-phone-err'); return true;
+  }
+  function valEmail() {
+    var v = document.getElementById('c-email').value.trim();
+    if (!v)                                    { setErr('c-email','c-email-err','Email is required.');              return false; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) { setErr('c-email','c-email-err','Enter a valid email address.'); return false; }
+    clrErr('c-email','c-email-err'); return true;
+  }
+  function valMsg() {
+    var v = document.getElementById('c-msg').value.trim();
+    if (!v)            { setErr('c-msg','c-msg-err','Message is required.');                    return false; }
+    if (v.length < 10) { setErr('c-msg','c-msg-err','Message must be at least 10 characters.'); return false; }
+    clrErr('c-msg','c-msg-err'); return true;
+  }
+
+  // --- Blur listeners (real-time feedback) ---
+  document.getElementById('c-name').addEventListener('blur', valName);
+  document.getElementById('c-phone').addEventListener('blur', valPhone);
+  document.getElementById('c-email').addEventListener('blur', valEmail);
+  document.getElementById('c-msg').addEventListener('blur', valMsg);
+
+  // --- Phone: strip non-digits as user types, cap at 10 ---
+  document.getElementById('c-phone').addEventListener('input', function() {
+    this.value = this.value.replace(/\D/g,'').slice(0,10);
+  });
+
+  // --- Character counter on message textarea ---
+  document.getElementById('c-msg').addEventListener('input', function() {
+    var len = this.value.length;
+    var counter = document.getElementById('msg-char-count');
+    if (!counter) {
+      counter = document.createElement('span');
+      counter.id = 'msg-char-count';
+      counter.style.cssText = 'font-size:0.78rem; display:block; margin-top:0.3rem;';
+      this.parentElement.appendChild(counter);
+    }
+    counter.textContent = len + ' characters' + (len < 10 ? ' (minimum 10)' : '');
+    counter.style.color = len < 10 ? '#e05252' : '#52b788';
+  });
+
+  // --- Submit: run all validators together ---
+  document.getElementById('contact-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    // Use & not && so ALL validators run and ALL errors show at once
+    var ok = valName() & valPhone() & valEmail() & valMsg();
+    if (ok) {
+        try {
+            const response = await fetch('/api/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: document.getElementById('c-name').value.trim(),
+                    email: document.getElementById('c-email').value.trim(),
+                    message: document.getElementById('c-msg').value.trim()
+                })
+            });
+
+            if (response.ok) {
+                document.getElementById('c-success').style.display = 'block';
+                this.reset();
+                // Reset all border colours
+                ['c-name','c-phone','c-email','c-msg'].forEach(function(id) {
+                    document.getElementById(id).style.borderColor = '#c8dbd0';
+                });
+                // Reset reason chips to first
+                document.querySelectorAll('.reason-chip').forEach(function(c, i) {
+                    c.classList.toggle('selected', i === 0);
+                });
+                // Clear character counter
+                var counter = document.getElementById('msg-char-count');
+                if (counter) counter.textContent = '';
+            }
+        } catch (error) {
+            console.error('Error submitting form:', error);
+        }
+    }
+  });
+  </script>
+
+</body>
+</html>

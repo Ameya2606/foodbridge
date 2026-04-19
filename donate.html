@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FoodBridge – Donate Food</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --green-dark:  #1a3c2e; --green-mid: #2d6a4f; --green-light: #52b788;
+      --green-pale:  #d8f3dc; --accent: #f4a261; --white: #ffffff;
+      --off-white:   #f8faf7; --text-dark: #1a1a1a; --text-muted: #5a6a60;
+      --font-head:   'Playfair Display', serif; --font-body: 'DM Sans', sans-serif;
+      --radius: 12px; --shadow: 0 4px 24px rgba(0,0,0,0.08);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-body); color: var(--text-dark); background: var(--off-white); overflow-x: hidden; }
+    a { text-decoration: none; color: inherit; }
+
+    /* NAVBAR */
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 1rem 6%; background: rgba(26,60,46,0.96); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .logo { font-family: var(--font-head); font-size: 1.5rem; color: var(--white); display: flex; align-items: center; gap: 0.5rem; }
+    .logo span { color: var(--accent); }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a { color: rgba(255,255,255,0.8); font-size: 0.95rem; font-weight: 500; transition: color 0.2s; }
+    .nav-links a:hover, .nav-links a.active { color: var(--accent); }
+    .nav-cta { background: var(--accent); color: var(--green-dark) !important; padding: 0.5rem 1.2rem; border-radius: 999px; font-weight: 600 !important; }
+    .nav-cta:hover { background: #e8914f; }
+
+    /* PAGE HERO */
+    .page-hero { min-height: 300px; background: linear-gradient(135deg, rgba(26,60,46,0.95) 0%, rgba(45,106,79,0.88) 100%), url('https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=1400&q=80') center/cover no-repeat; display: flex; align-items: center; justify-content: center; text-align: center; padding: 8rem 6% 3rem; }
+    .page-hero h1 { font-family: var(--font-head); font-size: clamp(2rem,5vw,3.5rem); color: var(--white); margin-bottom: 0.75rem; }
+    .page-hero p { color: rgba(255,255,255,0.75); font-size: 1.05rem; max-width: 500px; margin: 0 auto; }
+
+    /* MAIN LAYOUT */
+    .donate-section { padding: 5rem 6%; display: flex; gap: 3rem; align-items: flex-start; flex-wrap: wrap; max-width: 1100px; margin: 0 auto; }
+
+    /* INFO SIDEBAR */
+    .info-side { flex: 1; min-width: 260px; max-width: 360px; }
+    .info-side h2 { font-family: var(--font-head); font-size: 1.8rem; color: var(--green-dark); margin-bottom: 1rem; }
+    .info-side p { color: var(--text-muted); line-height: 1.7; margin-bottom: 1.5rem; font-size: 0.95rem; }
+    .info-point { display: flex; align-items: flex-start; gap: 0.75rem; margin-bottom: 1rem; }
+    .info-point .dot { width: 10px; height: 10px; background: var(--green-light); border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
+    .info-point p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin: 0; }
+
+    /* FORM CARD */
+    .form-card { flex: 1.5; min-width: 300px; background: var(--white); border: 1px solid #dde8e1; border-radius: var(--radius); padding: 2.5rem; box-shadow: var(--shadow); }
+    .form-card h3 { font-family: var(--font-head); font-size: 1.5rem; color: var(--green-dark); margin-bottom: 0.4rem; }
+    .form-card .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2rem; }
+
+    /* TABS: Donate Food / Register as Volunteer */
+    .tab-row { display: flex; gap: 0; margin-bottom: 2rem; border: 1.5px solid #c8dbd0; border-radius: 8px; overflow: hidden; }
+    .tab-btn { flex: 1; padding: 0.7rem; font-family: var(--font-body); font-size: 0.9rem; font-weight: 600; border: none; cursor: pointer; background: var(--off-white); color: var(--text-muted); transition: background 0.2s, color 0.2s; }
+    .tab-btn.active { background: var(--green-mid); color: var(--white); }
+
+    /* FORM FIELDS */
+    .form-group { margin-bottom: 1.2rem; }
+    .form-group label { display: block; font-size: 0.88rem; font-weight: 600; color: var(--green-dark); margin-bottom: 0.4rem; }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; padding: 0.75rem 1rem; border: 1.5px solid #c8dbd0; border-radius: 8px;
+      font-family: var(--font-body); font-size: 0.95rem; color: var(--text-dark);
+      background: var(--white); transition: border-color 0.2s; outline: none;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--green-light); }
+    .form-group textarea { resize: vertical; min-height: 90px; }
+    .form-row { display: flex; gap: 1rem; }
+    .form-row .form-group { flex: 1; }
+    .error-msg { color: #e05252; font-size: 0.82rem; margin-top: 0.3rem; display: none; }
+
+    /* SUBMIT BUTTON */
+    .btn-submit { width: 100%; background: var(--green-mid); color: var(--white); padding: 0.9rem; border: none; border-radius: 999px; font-family: var(--font-body); font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 0.5rem; transition: background 0.2s, transform 0.2s; }
+    .btn-submit:hover { background: var(--green-dark); transform: translateY(-1px); }
+
+    /* SUCCESS MESSAGE */
+    #success-msg { display: none; background: var(--green-pale); color: var(--green-dark); border-radius: 8px; padding: 1.2rem; text-align: center; font-weight: 600; margin-top: 1rem; font-size: 1rem; }
+
+    /* FOOTER */
+    footer { background: var(--green-dark); color: rgba(255,255,255,0.7); padding: 3rem 6% 2rem; }
+    .footer-top { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 2rem; padding-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 1.5rem; }
+    .footer-brand p { font-size: 0.88rem; max-width: 240px; line-height: 1.6; margin-top: 0.5rem; }
+    .footer-links h4 { color: var(--white); font-size: 0.9rem; font-weight: 700; margin-bottom: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; }
+    .footer-links ul { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+    .footer-links a { font-size: 0.88rem; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--accent); }
+    .footer-bottom { text-align: center; font-size: 0.82rem; color: rgba(255,255,255,0.4); }
+    @media (max-width: 720px) { .nav-links { display: none; } .form-row { flex-direction: column; } .donate-section { padding: 3rem 4%; } }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav>
+    <a href="index.html" class="logo">🌿 Food<span>Bridge</span></a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="how-it-works.html">How It Works</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><a href="volunteer-dashboard.html">Dashboard</a></li>
+      <li><a href="#" class="nav-cta" style="background:#52b788; color:#fff!important;">Donate Food</a></li>
+    </ul>
+  </nav>
+
+  <!-- PAGE HERO -->
+  <div class="page-hero">
+    <div>
+      <h1>Donate Food</h1>
+      <p>Your surplus food can become someone's next meal. Fill in the form below.</p>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div style="background: var(--off-white); padding: 5rem 6%;">
+    <div style="max-width: 1060px; margin: 0 auto; display: flex; gap: 3rem; flex-wrap: wrap; align-items: flex-start;">
+
+      <!-- LEFT INFO -->
+      <div class="info-side">
+        <h2>Why Donate With Us?</h2>
+        <p>Every donation makes a real, immediate difference. Here's what you can expect when you donate through FoodBridge.</p>
+        <div class="info-point"><span class="dot"></span><p>Food collected within 1–2 hours of your request</p></div>
+        <div class="info-point"><span class="dot"></span><p>All volunteers are trained and hygiene-verified</p></div>
+        <div class="info-point"><span class="dot"></span><p>You receive a confirmation after successful delivery</p></div>
+        <div class="info-point"><span class="dot"></span><p>Zero cost — completely free service for donors</p></div>
+        <div class="info-point"><span class="dot"></span><p>We cover restaurants, households, canteens, events</p></div>
+
+        <div style="margin-top: 2rem; background: var(--green-dark); border-radius: var(--radius); padding: 1.5rem; color: var(--white);">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">📞</div>
+          <div style="font-weight: 700; margin-bottom: 0.3rem;">Prefer to call?</div>
+          <div style="color: rgba(255,255,255,0.7); font-size: 0.9rem;">Reach us at <strong style="color: var(--accent);">+91 98765 43210</strong> and we'll register your donation over the phone.</div>
+        </div>
+      </div>
+
+      <!-- FORM CARD -->
+      <div class="form-card">
+        <h3>Register Your Donation</h3>
+        <p class="subtitle">Fill in the details below and we'll be in touch shortly.</p>
+
+        <!-- TABS -->
+        <div class="tab-row">
+          <button class="tab-btn active" onclick="switchTab('donate', this)">🍱 Donate Food</button>
+          <button class="tab-btn" onclick="switchTab('volunteer', this)">🤝 Become a Volunteer</button>
+        </div>
+
+        <!-- DONATE FOOD FORM -->
+        <form id="donate-form" novalidate>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="d-name">Your Name</label>
+              <input type="text" id="d-name" placeholder="e.g. Priya Sharma"/>
+              <span class="error-msg" id="d-name-err">Please enter your name.</span>
+            </div>
+            <div class="form-group">
+              <label for="d-phone">Phone Number</label>
+              <input type="tel" id="d-phone" placeholder="e.g. 9876543210"/>
+              <span class="error-msg" id="d-phone-err">Please enter a valid 10-digit number.</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="d-food">Type of Food</label>
+            <select id="d-food">
+              <option value="">-- Select food type --</option>
+              <option>Cooked Meals</option>
+              <option>Rice / Dal</option>
+              <option>Bread / Bakery Items</option>
+              <option>Fruits & Vegetables</option>
+              <option>Packaged / Canned Food</option>
+              <option>Dairy Products</option>
+              <option>Other</option>
+            </select>
+            <span class="error-msg" id="d-food-err">Please select a food type.</span>
+          </div>
+
+          <div class="form-group">
+            <label>Food Condition</label>
+            <div style="display: flex; gap: 1.5rem; align-items: center; margin-top: 0.5rem; font-family: var(--font-body);">
+              <label style="display: flex; align-items: center; gap: 0.4rem; font-weight: 500; font-size: 0.95rem; color: var(--text-dark); cursor: pointer;">
+                <input type="radio" name="d-condition" value="Fresh" style="width: auto; margin:0;" checked/> Fresh Food
+              </label>
+              <label style="display: flex; align-items: center; gap: 0.4rem; font-weight: 500; font-size: 0.95rem; color: var(--text-dark); cursor: pointer;">
+                <input type="radio" name="d-condition" value="Leftover" style="width: auto; margin:0;"/> Leftover Food
+              </label>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="d-qty">Quantity (kg approx.)</label>
+              <input type="number" id="d-qty" placeholder="e.g. 10" min="1"/>
+              <span class="error-msg" id="d-qty-err">Please enter quantity.</span>
+            </div>
+            <div class="form-group">
+              <label for="d-time">Available For Pickup</label>
+              <input type="time" id="d-time"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="d-addr">Pickup Address</label>
+            <textarea id="d-addr" placeholder="Full address including area, city..."></textarea>
+            <span class="error-msg" id="d-addr-err">Please enter the pickup address.</span>
+          </div>
+          <button type="submit" class="btn-submit">Submit Donation Request 🌿</button>
+          <div id="success-msg">✅ Thank you! We'll send a volunteer to your location shortly.</div>
+        </form>
+
+        <!-- VOLUNTEER FORM (hidden by default) -->
+        <form id="volunteer-form" style="display:none;" novalidate>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="v-name">Your Name</label>
+              <input type="text" id="v-name" placeholder="e.g. Rahul Desai"/>
+              <span class="error-msg" id="v-name-err">Please enter your name.</span>
+            </div>
+            <div class="form-group">
+              <label for="v-phone">Phone Number</label>
+              <input type="tel" id="v-phone" placeholder="e.g. 9876543210"/>
+              <span class="error-msg" id="v-phone-err">Please enter a valid 10-digit number.</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="v-email">Email Address</label>
+            <input type="email" id="v-email" placeholder="e.g. rahul@gmail.com"/>
+            <span class="error-msg" id="v-email-err">Please enter a valid email.</span>
+          </div>
+          <div class="form-group">
+            <label for="v-area">Your Area / City</label>
+            <input type="text" id="v-area" placeholder="e.g. Kothrud, Pune"/>
+            <span class="error-msg" id="v-area-err">Please enter your area.</span>
+          </div>
+          <div class="form-group">
+            <label for="v-avail">Availability</label>
+            <select id="v-avail">
+              <option value="">-- Select availability --</option>
+              <option>Weekdays (Morning)</option>
+              <option>Weekdays (Evening)</option>
+              <option>Weekends Only</option>
+              <option>Flexible / Any Time</option>
+            </select>
+          </div>
+          <button type="submit" class="btn-submit">Register as Volunteer 🤝</button>
+          <div id="v-success-msg" style="display:none; background:var(--green-pale); color:var(--green-dark); border-radius:8px; padding:1.2rem; text-align:center; font-weight:600; margin-top:1rem;">✅ Thank you for volunteering! We'll contact you soon.</div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="logo">🌿 Food<span>Bridge</span></div>
+        <p>Fighting hunger one meal at a time.</p>
+      </div>
+      <div class="footer-links">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="how-it-works.html">How It Works</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h4>Contact</h4>
+        <ul>
+          <li><a href="#"><span class="__cf_email__" data-cfemail="7a13141c153a1c15151e1808131e1d1f5415081d">[email&#160;protected]</span></a></li>
+          <li><a href="#">+91 98765 43210</a></li>
+          <li><a href="#">Pune, Maharashtra</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">&copy; 2025 FoodBridge NGO. All rights reserved. | Made with 💚 for a better world.</div>
+  </footer>
+
+  <script>
+  // ============================================================
+  //  DONATE.HTML — JavaScript Validation
+  //  Two forms: Donate Food form + Volunteer Registration form
+  //
+  //  DONATE FOOD validations:
+  //    - Name: required
+  //    - Phone: required, exactly 10 digits
+  //    - Food type: must select an option
+  //    - Quantity: required, must be > 0
+  //    - Address: required, min 10 chars
+  //
+  //  VOLUNTEER validations:
+  //    - Name: required
+  //    - Phone: required, exactly 10 digits
+  //    - Email: required, valid format
+  //    - Area: required
+  //
+  //  Features:
+  //    - Real-time blur validation (red/green border feedback)
+  //    - Phone field strips non-digit characters as you type
+  //    - All errors shown at once on submit
+  // ============================================================
+
+  // --- Tab switcher ---
+  function switchTab(tab, btn) {
+    document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('donate-form').style.display    = (tab === 'donate')    ? 'block' : 'none';
+    document.getElementById('volunteer-form').style.display = (tab === 'volunteer') ? 'block' : 'none';
+  }
+
+  // --- Shared helpers ---
+  function setErr(id, errId, msg) {
+    var el = document.getElementById(errId);
+    el.textContent = msg;
+    el.style.display = 'block';
+    document.getElementById(id).style.borderColor = '#e05252';
+  }
+  function clrErr(id, errId) {
+    document.getElementById(errId).style.display = 'none';
+    document.getElementById(id).style.borderColor = '#52b788';
+  }
+
+  // ---- DONATE FOOD FORM validators ----
+
+  function valDName() {
+    var v = document.getElementById('d-name').value.trim();
+    if (!v) { setErr('d-name','d-name-err','Name is required.'); return false; }
+    clrErr('d-name','d-name-err'); return true;
+  }
+  function valDPhone() {
+    var v = document.getElementById('d-phone').value.trim();
+    if (!v)                { setErr('d-phone','d-phone-err','Phone is required.');             return false; }
+    if (!/^\d{10}$/.test(v)) { setErr('d-phone','d-phone-err','Enter a valid 10-digit number.'); return false; }
+    clrErr('d-phone','d-phone-err'); return true;
+  }
+  function valDFood() {
+    var v = document.getElementById('d-food').value;
+    if (!v) { setErr('d-food','d-food-err','Please select a food type.'); return false; }
+    clrErr('d-food','d-food-err'); return true;
+  }
+  function valDQty() {
+    var v = document.getElementById('d-qty').value;
+    if (!v || Number(v) <= 0) { setErr('d-qty','d-qty-err','Enter a quantity greater than 0.'); return false; }
+    clrErr('d-qty','d-qty-err'); return true;
+  }
+  function valDAddr() {
+    var v = document.getElementById('d-addr').value.trim();
+    if (!v)            { setErr('d-addr','d-addr-err','Address is required.');                    return false; }
+    if (v.length < 10) { setErr('d-addr','d-addr-err','Please enter a more complete address.'); return false; }
+    clrErr('d-addr','d-addr-err'); return true;
+  }
+
+  // Blur listeners for donate form
+  document.getElementById('d-name').addEventListener('blur', valDName);
+  document.getElementById('d-phone').addEventListener('blur', valDPhone);
+  document.getElementById('d-food').addEventListener('change', valDFood);
+  document.getElementById('d-qty').addEventListener('blur', valDQty);
+  document.getElementById('d-addr').addEventListener('blur', valDAddr);
+
+  // Phone: only digits, max 10
+  document.getElementById('d-phone').addEventListener('input', function() {
+    this.value = this.value.replace(/\D/g,'').slice(0,10);
+  });
+
+  // Donate form submit
+  document.getElementById('donate-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    var ok = valDName() & valDPhone() & valDFood() & valDQty() & valDAddr();
+    if (ok) {
+      try {
+          const response = await fetch('/api/donate', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                  name: document.getElementById('d-name').value.trim(),
+                  phone: document.getElementById('d-phone').value.trim(),
+                  food_type: document.getElementById('d-food').value,
+                  food_condition: document.querySelector('input[name="d-condition"]:checked').value,
+                  quantity: document.getElementById('d-qty').value,
+                  pickup_time: document.getElementById('d-time').value,
+                  address: document.getElementById('d-addr').value.trim()
+              })
+          });
+
+          if (response.ok) {
+              document.getElementById('success-msg').style.display = 'block';
+              this.reset();
+              ['d-name','d-phone','d-food','d-qty','d-addr'].forEach(function(id) {
+                  document.getElementById(id).style.borderColor = '#c8dbd0';
+              });
+          }
+      } catch (error) {
+          console.error('Error submitting form:', error);
+      }
+    }
+  });
+
+  // ---- VOLUNTEER FORM validators ----
+
+  function valVName() {
+    var v = document.getElementById('v-name').value.trim();
+    if (!v) { setErr('v-name','v-name-err','Name is required.'); return false; }
+    clrErr('v-name','v-name-err'); return true;
+  }
+  function valVPhone() {
+    var v = document.getElementById('v-phone').value.trim();
+    if (!v)                { setErr('v-phone','v-phone-err','Phone is required.');             return false; }
+    if (!/^\d{10}$/.test(v)) { setErr('v-phone','v-phone-err','Enter a valid 10-digit number.'); return false; }
+    clrErr('v-phone','v-phone-err'); return true;
+  }
+  function valVEmail() {
+    var v = document.getElementById('v-email').value.trim();
+    if (!v)                              { setErr('v-email','v-email-err','Email is required.');              return false; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) { setErr('v-email','v-email-err','Enter a valid email address.'); return false; }
+    clrErr('v-email','v-email-err'); return true;
+  }
+  function valVArea() {
+    var v = document.getElementById('v-area').value.trim();
+    if (!v) { setErr('v-area','v-area-err','Area / city is required.'); return false; }
+    clrErr('v-area','v-area-err'); return true;
+  }
+
+  // Blur listeners for volunteer form
+  document.getElementById('v-name').addEventListener('blur', valVName);
+  document.getElementById('v-phone').addEventListener('blur', valVPhone);
+  document.getElementById('v-email').addEventListener('blur', valVEmail);
+  document.getElementById('v-area').addEventListener('blur', valVArea);
+
+  // Phone: only digits, max 10
+  document.getElementById('v-phone').addEventListener('input', function() {
+    this.value = this.value.replace(/\D/g,'').slice(0,10);
+  });
+
+  // Volunteer form submit
+  document.getElementById('volunteer-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    var ok = valVName() & valVPhone() & valVEmail() & valVArea();
+    if (ok) {
+      try {
+          const response = await fetch('/api/volunteer', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                  name: document.getElementById('v-name').value.trim(),
+                  phone: document.getElementById('v-phone').value.trim(),
+                  email: document.getElementById('v-email').value.trim(),
+                  area: document.getElementById('v-area').value.trim(),
+                  availability: document.getElementById('v-avail').value
+              })
+          });
+
+          if (response.ok) {
+              document.getElementById('v-success-msg').style.display = 'block';
+              this.reset();
+              ['v-name','v-phone','v-email','v-area'].forEach(function(id) {
+                  document.getElementById(id).style.borderColor = '#c8dbd0';
+              });
+          }
+      } catch (error) {
+          console.error('Error submitting form:', error);
+      }
+    }
+  });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FoodBridge – Volunteer Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --green-dark:  #1a3c2e; --green-mid: #2d6a4f; --green-light: #52b788;
+      --green-pale:  #d8f3dc; --accent: #f4a261; --white: #ffffff;
+      --off-white:   #f8faf7; --text-dark: #1a1a1a; --text-muted: #5a6a60;
+      --font-head:   'Playfair Display', serif; --font-body: 'DM Sans', sans-serif;
+      --radius: 12px; --shadow: 0 4px 24px rgba(0,0,0,0.08);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-body); color: var(--text-dark); background: var(--off-white); overflow-x: hidden; }
+    a { text-decoration: none; color: inherit; }
+
+    /* NAVBAR */
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 1rem 6%; background: rgba(26,60,46,0.96); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .logo { font-family: var(--font-head); font-size: 1.5rem; color: var(--white); display: flex; align-items: center; gap: 0.5rem; }
+    .logo span { color: var(--accent); }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a { color: rgba(255,255,255,0.8); font-size: 0.95rem; font-weight: 500; transition: color 0.2s; }
+    .nav-links a:hover, .nav-links a.active { color: var(--accent); }
+    .nav-cta { background: var(--accent); color: var(--green-dark) !important; padding: 0.5rem 1.2rem; border-radius: 999px; font-weight: 600 !important; }
+    .nav-cta:hover { background: #e8914f; }
+
+    /* PAGE HERO */
+    .page-hero { padding: 9rem 6% 4rem; background: var(--green-dark); text-align: center; }
+    .page-hero h1 { font-family: var(--font-head); font-size: clamp(2rem,4vw,3.2rem); color: var(--white); margin-bottom: 0.75rem; }
+    .page-hero p { color: rgba(255,255,255,0.75); font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
+
+    /* DASHBOARD */
+    .dashboard-container { padding: 4rem 6%; max-width: 1200px; margin: 0 auto; min-height: 50vh; }
+    .tasks-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 2px solid #dde8e1; padding-bottom: 1rem; }
+    .tasks-header h2 { font-family: var(--font-head); color: var(--green-dark); font-size: 1.8rem; }
+    .tasks-header .badge { background: var(--accent); color: var(--green-dark); padding: 0.3rem 1rem; border-radius: 999px; font-weight: 700; font-size: 0.9rem; }
+
+    /* GRID */
+    .task-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
+    .task-card { background: var(--white); border: 1px solid #dde8e1; border-radius: var(--radius); padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; box-shadow: var(--shadow); transition: transform 0.2s; position: relative; overflow: hidden; }
+    .task-card:hover { transform: translateY(-3px); }
+    
+    .task-badge { position: absolute; top: 1rem; right: 1rem; padding: 0.25rem 0.75rem; border-radius: 6px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+    .badge-fresh { background: var(--green-pale); color: var(--green-dark); }
+    .badge-leftover { background: #fff3cd; color: #856404; }
+    .badge-quick { background: #e2e3e5; color: #383d41; }
+    
+    .task-title { font-family: var(--font-head); font-size: 1.3rem; color: var(--green-dark); padding-right: 4rem; }
+    .task-meta { font-size: 0.88rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 0.4rem; }
+    .task-meta span { display: flex; align-items: flex-start; gap: 0.5rem; }
+    .task-icon { flex-shrink: 0; font-size: 1rem; }
+    
+    .btn-pickup { margin-top: auto; width: 100%; background: var(--green-mid); color: var(--white); padding: 0.8rem; border: none; border-radius: 8px; font-family: var(--font-body); font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    .btn-pickup:hover { background: var(--green-dark); }
+    .btn-pickup.loading { opacity: 0.7; cursor: not-allowed; }
+
+    .empty-state { text-align: center; padding: 4rem 1rem; color: var(--text-muted); grid-column: 1 / -1; }
+    .empty-state div { font-size: 3rem; margin-bottom: 1rem; }
+    
+    @media (max-width: 720px) { .nav-links { display: none; } }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav>
+    <a href="index.html" class="logo">🌿 Food<span>Bridge</span></a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="how-it-works.html">How It Works</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><a href="volunteer-dashboard.html" class="active">Dashboard</a></li>
+      <li><a href="donate.html" class="nav-cta">Donate Food</a></li>
+    </ul>
+  </nav>
+
+  <!-- PAGE HERO -->
+  <div class="page-hero">
+    <h1>Volunteer Dashboard</h1>
+    <p>View active requests from donors in your region. Claim a request below and head out to rescue food.</p>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="dashboard-container">
+    <div class="tasks-header">
+      <h2>Pending Pickups</h2>
+      <span class="badge" id="task-count">0 Tasks</span>
+    </div>
+
+    <div class="task-grid" id="task-grid">
+      <!-- Loading state -->
+      <div class="empty-state">
+        <div>⏳</div>
+        <p>Loading active requests...</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const taskGrid = document.getElementById('task-grid');
+    const taskCount = document.getElementById('task-count');
+
+    // Fetch tasks
+    async function loadTasks() {
+        try {
+            const response = await fetch('/api/tasks');
+            if (response.ok) {
+                const tasks = await response.json();
+                taskCount.textContent = `${tasks.length} Task${tasks.length !== 1 ? 's' : ''}`;
+                renderTasks(tasks);
+            } else {
+                showError('Failed to load tasks from server.');
+            }
+        } catch (error) {
+            console.error('Error fetching tasks:', error);
+            showError('Network error. Ensure server is running.');
+        }
+    }
+
+    function renderTasks(tasks) {
+        if (tasks.length === 0) {
+            taskGrid.innerHTML = `
+              <div class="empty-state">
+                <div>🎉</div>
+                <p>No pending pickups right now.<br>Check back later!</p>
+              </div>`;
+            return;
+        }
+
+        taskGrid.innerHTML = tasks.map(task => {
+            let badgeClass = 'badge-quick';
+            let conditionDisplay = '';
+            
+            if (task.source === 'donation') {
+                badgeClass = task.food_condition === 'Fresh' ? 'badge-fresh' : 'badge-leftover';
+                conditionDisplay = task.food_condition ? `${task.food_condition} Food` : 'Donation';
+            } else {
+                conditionDisplay = 'Quick Request';
+            }
+
+            return `
+            <div class="task-card" id="task-${task.id}">
+                <span class="task-badge ${badgeClass}">${conditionDisplay}</span>
+                <div class="task-title">${task.food_type}</div>
+                <div class="task-meta">
+                    <span><span class="task-icon">📍</span> ${escapeHtml(task.address)}</span>
+                    <span><span class="task-icon">👤</span> ${escapeHtml(task.name)} (${escapeHtml(task.phone)})</span>
+                    ${task.quantity ? `<span><span class="task-icon">📦</span> ${escapeHtml(task.quantity)} kg</span>` : ''}
+                    ${task.pickup_time ? `<span><span class="task-icon">⏰</span> By ${escapeHtml(task.pickup_time)}</span>` : ''}
+                </div>
+                <button class="btn-pickup" onclick="markPickedUp(${task.id}, '${task.source}', this)">
+                    Mark as Picked Up ✓
+                </button>
+            </div>
+            `;
+        }).join('');
+    }
+
+    async function markPickedUp(id, source, btnElement) {
+        btnElement.classList.add('loading');
+        btnElement.textContent = 'Updating...';
+        btnElement.disabled = true;
+
+        try {
+            const response = await fetch('/api/tasks/pickup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id, source })
+            });
+
+            if (response.ok) {
+                // remove card
+                const card = document.getElementById(`task-${id}`);
+                card.style.opacity = '0';
+                setTimeout(() => {
+                    card.remove();
+                    // refresh count by reloading tasks
+                    loadTasks();
+                }, 300);
+            } else {
+                alert('Action failed. Perhaps it was already picked up?');
+                btnElement.classList.remove('loading');
+                btnElement.textContent = 'Mark as Picked Up ✓';
+                btnElement.disabled = false;
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Network error communicating with server.');
+            btnElement.classList.remove('loading');
+            btnElement.textContent = 'Mark as Picked Up ✓';
+            btnElement.disabled = false;
+        }
+    }
+
+    function showError(msg) {
+        taskGrid.innerHTML = `
+          <div class="empty-state">
+            <div>⚠️</div>
+            <p>${msg}</p>
+          </div>`;
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    // load on startup
+    loadTasks();
+  </script>
+
+</body>
+</html>

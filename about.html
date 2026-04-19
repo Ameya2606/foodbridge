@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FoodBridge – About Us</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --green-dark:  #1a3c2e;
+      --green-mid:   #2d6a4f;
+      --green-light: #52b788;
+      --green-pale:  #d8f3dc;
+      --accent:      #f4a261;
+      --white:       #ffffff;
+      --off-white:   #f8faf7;
+      --text-dark:   #1a1a1a;
+      --text-muted:  #5a6a60;
+      --font-head:   'Playfair Display', serif;
+      --font-body:   'DM Sans', sans-serif;
+      --radius:      12px;
+      --shadow:      0 4px 24px rgba(0,0,0,0.08);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font-body); color: var(--text-dark); background: var(--off-white); overflow-x: hidden; }
+    a { text-decoration: none; color: inherit; }
+
+    /* NAVBAR */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 6%;
+      background: rgba(26,60,46,0.96);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .logo { font-family: var(--font-head); font-size: 1.5rem; color: var(--white); display: flex; align-items: center; gap: 0.5rem; }
+    .logo span { color: var(--accent); }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a { color: rgba(255,255,255,0.8); font-size: 0.95rem; font-weight: 500; transition: color 0.2s; }
+    .nav-links a:hover, .nav-links a.active { color: var(--accent); }
+    .nav-cta { background: var(--accent); color: var(--green-dark) !important; padding: 0.5rem 1.2rem; border-radius: 999px; font-weight: 600 !important; transition: transform 0.2s, background 0.2s !important; }
+    .nav-cta:hover { background: #e8914f; transform: scale(1.05); }
+
+    /* PAGE HERO BANNER */
+    .page-hero {
+      min-height: 340px;
+      background: linear-gradient(135deg, rgba(26,60,46,0.95) 0%, rgba(45,106,79,0.88) 100%),
+        url('https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=1400&q=80') center/cover no-repeat;
+      display: flex; align-items: center; justify-content: center;
+      text-align: center; padding: 8rem 6% 3rem;
+    }
+    .page-hero h1 { font-family: var(--font-head); font-size: clamp(2rem, 5vw, 3.5rem); color: var(--white); margin-bottom: 0.75rem; }
+    .page-hero p { color: rgba(255,255,255,0.75); font-size: 1.05rem; max-width: 500px; margin: 0 auto; }
+
+    /* SECTION HELPERS */
+    section { padding: 5rem 6%; }
+    .tag { display: inline-block; background: var(--green-pale); color: var(--green-mid); padding: 0.25rem 0.9rem; border-radius: 999px; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.8rem; }
+    .section-header { text-align: center; margin-bottom: 3rem; }
+    .section-header h2 { font-family: var(--font-head); font-size: clamp(1.8rem, 4vw, 2.6rem); color: var(--green-dark); }
+    .section-header p { color: var(--text-muted); margin-top: 0.5rem; font-size: 1rem; }
+
+    /* MISSION + VISION CARDS */
+    .mv-grid { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; }
+    .mv-card { background: var(--white); border: 1px solid #dde8e1; border-radius: var(--radius); padding: 2.5rem 2rem; flex: 1; min-width: 260px; max-width: 440px; box-shadow: var(--shadow); }
+    .mv-card .icon { font-size: 2.5rem; margin-bottom: 1rem; }
+    .mv-card h3 { font-family: var(--font-head); font-size: 1.5rem; color: var(--green-dark); margin-bottom: 0.8rem; }
+    .mv-card p { color: var(--text-muted); line-height: 1.7; }
+
+    /* TEAM SECTION */
+    .team-grid { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; }
+    .team-card { background: var(--white); border-radius: var(--radius); padding: 2rem 1.5rem; text-align: center; flex: 1; min-width: 180px; max-width: 220px; border: 1px solid #dde8e1; transition: transform 0.2s, box-shadow 0.2s; }
+    .team-card:hover { transform: translateY(-5px); box-shadow: var(--shadow); }
+    .avatar { width: 72px; height: 72px; border-radius: 50%; background: var(--green-pale); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin: 0 auto 1rem; border: 3px solid var(--green-light); }
+    .team-card h4 { font-family: var(--font-head); font-size: 1.05rem; color: var(--green-dark); margin-bottom: 0.25rem; }
+    .team-card p { color: var(--text-muted); font-size: 0.85rem; }
+
+    /* VALUES SECTION */
+    .values-section { background: var(--green-dark); }
+    .values-grid { display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center; }
+    .value-item { text-align: center; flex: 1; min-width: 160px; max-width: 200px; }
+    .value-item .v-icon { font-size: 2rem; margin-bottom: 0.75rem; display: block; }
+    .value-item h4 { color: var(--accent); font-family: var(--font-head); font-size: 1.1rem; margin-bottom: 0.4rem; }
+    .value-item p { color: rgba(255,255,255,0.65); font-size: 0.88rem; line-height: 1.6; }
+
+    /* FOOTER */
+    footer { background: var(--green-dark); color: rgba(255,255,255,0.7); padding: 3rem 6% 2rem; }
+    .footer-top { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 2rem; padding-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 1.5rem; }
+    .footer-brand p { font-size: 0.88rem; max-width: 240px; line-height: 1.6; margin-top: 0.5rem; }
+    .footer-links h4 { color: var(--white); font-size: 0.9rem; font-weight: 700; margin-bottom: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; }
+    .footer-links ul { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+    .footer-links a { font-size: 0.88rem; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--accent); }
+    .footer-bottom { text-align: center; font-size: 0.82rem; color: rgba(255,255,255,0.4); }
+
+    @media (max-width: 720px) { .nav-links { display: none; } }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav>
+    <a href="index.html" class="logo">🌿 Food<span>Bridge</span></a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html" class="active">About</a></li>
+      <li><a href="how-it-works.html">How It Works</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><a href="volunteer-dashboard.html">Dashboard</a></li>
+      <li><a href="donate.html" class="nav-cta">Donate Food</a></li>
+    </ul>
+  </nav>
+
+  <!-- PAGE HERO -->
+  <div class="page-hero">
+    <div>
+      <h1>About FoodBridge</h1>
+      <p>We believe no good food should go to waste while people go hungry.</p>
+    </div>
+  </div>
+
+  <!-- MISSION & VISION -->
+  <section style="background: var(--white);">
+    <div class="section-header">
+      <span class="tag">Who We Are</span>
+      <h2>Our Mission & Vision</h2>
+      <p>Bridging the gap between surplus and need.</p>
+    </div>
+    <div class="mv-grid">
+      <div class="mv-card">
+        <div class="icon">🎯</div>
+        <h3>Our Mission</h3>
+        <p>To rescue surplus food from restaurants, events, and households and redistribute it to underprivileged communities — reducing waste and fighting hunger at the same time.</p>
+      </div>
+      <div class="mv-card">
+        <div class="icon">🌍</div>
+        <h3>Our Vision</h3>
+        <p>A world where no nutritious food is wasted, every community has enough to eat, and every citizen plays a role in building a sustainable food system.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- OUR STORY -->
+  <section style="background: var(--green-pale);">
+    <div style="max-width: 760px; margin: 0 auto; text-align: center;">
+      <span class="tag">Our Story</span>
+      <h2 style="font-family: var(--font-head); font-size: clamp(1.8rem,4vw,2.6rem); color: var(--green-dark); margin-bottom: 1.2rem;">Started with One Meal</h2>
+      <p style="color: var(--text-muted); line-height: 1.8; font-size: 1rem; margin-bottom: 1rem;">
+        FoodBridge was founded in 2021 by a group of students from Pune who noticed massive food waste at college events while families nearby went hungry. What began as a small weekend initiative has grown into a full NGO operating across 15 cities.
+      </p>
+      <p style="color: var(--text-muted); line-height: 1.8; font-size: 1rem;">
+        Today, we partner with over 80 restaurants, hotels, and event venues to rescue food daily. Our volunteer network of 320+ people ensures every meal reaches a shelter, orphanage, or community kitchen within hours of collection.
+      </p>
+    </div>
+  </section>
+
+  <!-- TEAM -->
+  <section style="background: var(--off-white);">
+    <div class="section-header">
+      <span class="tag">Our People</span>
+      <h2>Meet the Team</h2>
+      <p>Passionate individuals driving change every day.</p>
+    </div>
+    <div class="team-grid">
+      <div class="team-card">
+        <div class="avatar">👩</div>
+        <h4>Priya Sharma</h4>
+        <p>Founder & Director</p>
+      </div>
+      <div class="team-card">
+        <div class="avatar">👨</div>
+        <h4>Rahul Desai</h4>
+        <p>Head of Operations</p>
+      </div>
+      <div class="team-card">
+        <div class="avatar">👩</div>
+        <h4>Sneha Patil</h4>
+        <p>Volunteer Coordinator</p>
+      </div>
+      <div class="team-card">
+        <div class="avatar">👨</div>
+        <h4>Amit Kulkarni</h4>
+        <p>Partnerships Manager</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- VALUES -->
+  <section class="values-section">
+    <div class="section-header" style="margin-bottom: 3rem;">
+      <span class="tag" style="background: rgba(255,255,255,0.1); color: var(--accent);">What We Stand For</span>
+      <h2 style="color: var(--white); font-family: var(--font-head);">Our Core Values</h2>
+    </div>
+    <div class="values-grid">
+      <div class="value-item"><span class="v-icon">💚</span><h4>Compassion</h4><p>Every action we take is driven by care for people and the planet.</p></div>
+      <div class="value-item"><span class="v-icon">⚡</span><h4>Speed</h4><p>Food freshness is critical. We move fast from donor to recipient.</p></div>
+      <div class="value-item"><span class="v-icon">🤝</span><h4>Community</h4><p>We grow by bringing volunteers, donors, and shelters together.</p></div>
+      <div class="value-item"><span class="v-icon">♻️</span><h4>Sustainability</h4><p>We tackle food waste at the root, not just the symptom.</p></div>
+    </div>
+  </section>
+
+  <!-- STATS COUNTER SECTION -->
+  <section id="stats-section" style="background: var(--green-dark); padding: 4rem 6%; text-align: center;">
+    <div style="display:flex; justify-content:center; gap:4rem; flex-wrap:wrap;">
+      <div>
+        <div id="stat-meals"   style="font-family:var(--font-head); font-size:3rem; color:var(--accent);">0+</div>
+        <p style="color:rgba(255,255,255,0.6); font-size:0.85rem; text-transform:uppercase; letter-spacing:0.06em; margin-top:0.3rem;">Meals Saved</p>
+      </div>
+      <div>
+        <div id="stat-volunteers" style="font-family:var(--font-head); font-size:3rem; color:var(--accent);">0+</div>
+        <p style="color:rgba(255,255,255,0.6); font-size:0.85rem; text-transform:uppercase; letter-spacing:0.06em; margin-top:0.3rem;">Volunteers</p>
+      </div>
+      <div>
+        <div id="stat-cities"  style="font-family:var(--font-head); font-size:3rem; color:var(--accent);">0</div>
+        <p style="color:rgba(255,255,255,0.6); font-size:0.85rem; text-transform:uppercase; letter-spacing:0.06em; margin-top:0.3rem;">Cities Covered</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEWSLETTER SIGNUP -->
+  <section style="background: var(--green-pale); padding: 4rem 6%; text-align:center;">
+    <span class="tag">Stay Updated</span>
+    <h2 style="font-family:var(--font-head); font-size:clamp(1.6rem,3.5vw,2.2rem); color:var(--green-dark); margin-bottom:0.6rem;">Get Our Monthly Newsletter</h2>
+    <p style="color:var(--text-muted); margin-bottom:2rem; font-size:0.95rem;">Stories, impact numbers, and ways to help — straight to your inbox.</p>
+    <form id="newsletter-form" novalidate style="display:flex; flex-wrap:wrap; gap:0.75rem; justify-content:center; max-width:480px; margin:0 auto;">
+      <div style="flex:1; min-width:220px;">
+        <input type="email" id="nl-email" placeholder="Enter your email address"
+          style="width:100%; padding:0.75rem 1rem; border:1.5px solid #b7dfc0; border-radius:8px;
+                 font-family:var(--font-body); font-size:0.95rem; outline:none; transition:border-color 0.2s;"/>
+        <span id="nl-error"   style="display:none; color:#e05252; font-size:0.82rem; margin-top:0.3rem; display:none; text-align:left;"></span>
+        <span id="nl-success" style="display:none; color:var(--green-mid); font-size:0.88rem; margin-top:0.3rem; font-weight:600;">✅ You're subscribed!</span>
+      </div>
+      <button type="submit"
+        style="background:var(--green-mid); color:var(--white); padding:0.75rem 1.5rem; border:none;
+               border-radius:8px; font-family:var(--font-body); font-weight:700; cursor:pointer;
+               transition:background 0.2s;">Subscribe</button>
+    </form>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="logo">🌿 Food<span>Bridge</span></div>
+        <p>Fighting hunger one meal at a time.</p>
+      </div>
+      <div class="footer-links">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="how-it-works.html">How It Works</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h4>Contact</h4>
+        <ul>
+          <li><a href="#"><span class="__cf_email__" data-cfemail="e48d8a828ba4828b8b8086968d808381ca8b9683">[email&#160;protected]</span></a></li>
+          <li><a href="#">+91 98765 43210</a></li>
+          <li><a href="#">Pune, Maharashtra</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">&copy; 2025 FoodBridge NGO. All rights reserved. | Made with 💚 for a better world.</div>
+  </footer>
+
+  <script>
+  // ============================================================
+  //  ABOUT.HTML — JavaScript
+  //
+  //  Features:
+  //    1. Animated stat counters — count up when page scrolls
+  //       to the stats section (uses IntersectionObserver)
+  //    2. Newsletter signup form validation
+  //       - Email: required, valid format
+  //       - Clear error when user starts typing again
+  // ============================================================
+
+  // --- 1. Animated counter: counts up from 0 to target ---
+  function animateCounter(elId, target, suffix, duration) {
+    var el   = document.getElementById(elId);
+    var start = 0;
+    var step  = target / (duration / 16);
+    var timer = setInterval(function() {
+      start += step;
+      if (start >= target) {
+        el.textContent = target.toLocaleString() + suffix;
+        clearInterval(timer);
+      } else {
+        el.textContent = Math.floor(start).toLocaleString() + suffix;
+      }
+    }, 16);
+  }
+
+  // Trigger counters when stats section scrolls into view
+  var statsSection = document.getElementById('stats-section');
+  if (statsSection) {
+    var statObserver = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          animateCounter('stat-meals',      48000, '+', 1500);
+          animateCounter('stat-volunteers',   320, '+', 1200);
+          animateCounter('stat-cities',        15, '',   800);
+          statObserver.disconnect(); // only animate once
+        }
+      });
+    }, { threshold: 0.4 });
+    statObserver.observe(statsSection);
+  }
+
+  // --- 2. Newsletter form validation ---
+  var nlForm = document.getElementById('newsletter-form');
+  if (nlForm) {
+    var nlInput   = document.getElementById('nl-email');
+    var nlError   = document.getElementById('nl-error');
+    var nlSuccess = document.getElementById('nl-success');
+
+    nlForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      var val   = nlInput.value.trim();
+      var valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+
+      if (!val) {
+        // Empty field
+        nlError.textContent = 'Please enter your email address.';
+        nlError.style.display = 'block';
+        nlInput.style.borderColor = '#e05252';
+      } else if (!valid) {
+        // Wrong format
+        nlError.textContent = 'Please enter a valid email (e.g. name@email.com).';
+        nlError.style.display = 'block';
+        nlInput.style.borderColor = '#e05252';
+      } else {
+        try {
+            const response = await fetch('/api/newsletter', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: val })
+            });
+
+            if (response.ok) {
+                // Success
+                nlError.style.display = 'none';
+                nlSuccess.style.display = 'block';
+                nlInput.style.borderColor = '#52b788';
+                nlForm.reset();
+            } else {
+                const data = await response.json();
+                nlError.textContent = data.error || 'Failed to subscribe.';
+                nlError.style.display = 'block';
+                nlInput.style.borderColor = '#e05252';
+            }
+        } catch (error) {
+            console.error('Error submitting form:', error);
+            nlError.textContent = 'Network error. Please try again later.';
+            nlError.style.display = 'block';
+            nlInput.style.borderColor = '#e05252';
+        }
+      }
+    });
+
+    // Clear error as user types
+    nlInput.addEventListener('input', function() {
+      nlError.style.display = 'none';
+      this.style.borderColor = '#c8dbd0';
+      nlSuccess.style.display = 'none';
+    });
+  }
+  </script>
+
+</body>
+</html>
