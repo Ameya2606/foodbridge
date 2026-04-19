@@ -378,7 +378,10 @@
           });
 
           if (response.ok) {
-              document.getElementById('success-msg').style.display = 'block';
+              const data = await response.json();
+              const successEl = document.getElementById('success-msg');
+              successEl.innerHTML = '✅ ' + data.message;
+              successEl.style.display = 'block';
               this.reset();
               ['d-name','d-phone','d-food','d-qty','d-addr'].forEach(function(id) {
                   document.getElementById(id).style.borderColor = '#c8dbd0';
