@@ -79,6 +79,10 @@ function createTables() {
             subscribed_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )`);
 
+        // Add new columns to existing tables
+        db.run("ALTER TABLE donations ADD COLUMN ngo_name TEXT", () => {});
+        db.run("ALTER TABLE pickup_requests ADD COLUMN ngo_name TEXT", () => {});
+
         // Users table
         db.run(`CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -88,14 +92,29 @@ function createTables() {
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )`, () => {
             // Seed admins automatically upon restart
-            const admins = ['ayushpund11', 'ameyabhagwat11'];
-            admins.forEach(admin => {
-                db.get(`SELECT id FROM users WHERE username = ?`, [admin], (err, row) => {
+            const seedUsers = [
+                { username: 'ameyabhagwat11', role: 'admin' },
+                { username: 'ayushpund11', role: 'volunteer' },
+                { username: 'verified_donor', role: 'user' }
+            ];
+            seedUsers.forEach(u => {
+                db.get(`SELECT id FROM users WHERE username = ?`, [u.username], (err, row) => {
                     if (!err && !row) {
                         const hash = bcrypt.hashSync('FoodBidge', 10);
-                        db.run(`INSERT INTO users (username, password_hash, role) VALUES (?, ?, 'admin')`, [admin, hash]);
+                        db.run(`INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?)`, [u.username, hash, u.role]);
+                    } else if (row) {
+                        db.run(`UPDATE users SET role = ? WHERE username = ?`, [u.role, u.username]);
                     }
                 });
+            });
+
+            // Seed mock donations for the verified donor so they have 5 donations
+            db.get(`SELECT COUNT(*) as count FROM donations WHERE phone = '9999999999'`, (err, row) => {
+                if (row && row.count < 5) {
+                    for(let i=0; i<5; i++) {
+                        db.run(`INSERT INTO donations (name, phone, food_type, food_condition, quantity, pickup_time, address, status) VALUES ('Verified Donor', '9999999999', 'Cooked Meals', 'Fresh', 5, '14:00', 'Dummy Address', 'Verified')`);
+                    }
+                }
             });
         });
     });
@@ -113,6 +132,26 @@ function authenticateAdmin(req, res, next) {
         const decoded = jwt.verify(token, JWT_SECRET);
         if (decoded.role !== 'admin') {
             return res.status(403).json({ error: 'Access forbidden. Admins only.' });
+        }
+        req.user = decoded;
+        next();
+    } catch (ex) {
+        res.status(400).json({ error: 'Invalid token.' });
+    }
+}
+
+// Middleware: Authenticate Volunteer or Admin Access
+function authenticateVolunteerOrAdmin(req, res, next) {
+    const authHeader = req.headers['authorization'];
+    if (!authHeader) return res.status(401).json({ error: 'Access denied. No token provided.' });
+    
+    const token = authHeader.split(' ')[1];
+    if (!token) return res.status(401).json({ error: 'Access denied. Invalid token.' });
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        if (decoded.role !== 'admin' && decoded.role !== 'volunteer') {
+            return res.status(403).json({ error: 'Access forbidden. Volunteers or Admins only.' });
         }
         req.user = decoded;
         next();
@@ -242,19 +281,21 @@ app.post('/api/login', (req, res) => {
 });
 
 
-// 6. Get Volunteer Tasks (ADMIN ONLY)
-app.get('/api/tasks', authenticateAdmin, (req, res) => {
-    const donationsQuery = `SELECT id, name, phone, food_type, food_condition, quantity, pickup_time, address, status, created_at, 'donation' as source FROM donations WHERE status = 'Pending'`;
-    const pickupsQuery = `SELECT id, name, phone, 'Quick Request' as food_type, NULL as food_condition, NULL as quantity, NULL as pickup_time, address, status, created_at, 'quick_pickup' as source FROM pickup_requests WHERE status = 'Pending'`;
+// 6. Get Volunteer Tasks (Volunteer and Admin ONLY)
+app.get('/api/tasks', authenticateVolunteerOrAdmin, (req, res) => {
+    // Check if phone has >= 5 donations in donations table
+    const donationsQuery = `SELECT id, name, phone, food_type, food_condition, quantity, pickup_time, address, status, ngo_name, created_at, 'donation' as source, (SELECT COUNT(*) FROM donations d2 WHERE d2.phone = donations.phone) >= 5 as is_verified_donor FROM donations`;
+    const pickupsQuery = `SELECT id, name, phone, 'Quick Request' as food_type, NULL as food_condition, NULL as quantity, NULL as pickup_time, address, status, ngo_name, created_at, 'quick_pickup' as source, (SELECT COUNT(*) FROM donations d2 WHERE d2.phone = pickup_requests.phone) >= 5 as is_verified_donor FROM pickup_requests`;
 
-    db.all(`${donationsQuery} UNION ALL ${pickupsQuery} ORDER BY created_at DESC`, [], (err, rows) => {
+    // Order by 'Verified' at the bottom, then by created_at DESC
+    db.all(`${donationsQuery} UNION ALL ${pickupsQuery} ORDER BY status = 'Verified' ASC, created_at DESC`, [], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
     });
 });
 
-// 7. Mark Task as Picked Up (ADMIN ONLY)
-app.post('/api/tasks/pickup', authenticateAdmin, (req, res) => {
+// 7. Mark Task as Picked Up (Volunteer and Admin ONLY)
+app.post('/api/tasks/pickup', authenticateVolunteerOrAdmin, (req, res) => {
     const { id, source } = req.body;
     if (!id || !source) {
         return res.status(400).json({ error: 'Missing required fields: id, source.' });
@@ -265,13 +306,83 @@ app.post('/api/tasks/pickup', authenticateAdmin, (req, res) => {
     else if (source === 'quick_pickup') tableName = 'pickup_requests';
     else return res.status(400).json({ error: 'Invalid source.' });
 
-    const stmt = db.prepare(`UPDATE ${tableName} SET status = 'Picked Up' WHERE id = ?`);
+    const stmt = db.prepare(`UPDATE ${tableName} SET status = 'Picked Up' WHERE id = ? AND status = 'Pending'`);
     stmt.run([id], function(err) {
         if (err) return res.status(500).json({ error: err.message });
-        if (this.changes === 0) return res.status(404).json({ error: 'Task not found.' });
+        if (this.changes === 0) return res.status(404).json({ error: 'Task not found or already picked up.' });
         res.json({ message: 'Task marked as Picked Up successfully!' });
     });
     stmt.finalize();
+});
+
+// 8. Mark Task as Donated (Volunteer and Admin ONLY)
+app.post('/api/tasks/donate', authenticateVolunteerOrAdmin, (req, res) => {
+    const { id, source, ngo_name } = req.body;
+    if (!id || !source || !ngo_name) {
+        return res.status(400).json({ error: 'Missing required fields: id, source, ngo_name.' });
+    }
+
+    let tableName;
+    if (source === 'donation') tableName = 'donations';
+    else if (source === 'quick_pickup') tableName = 'pickup_requests';
+    else return res.status(400).json({ error: 'Invalid source.' });
+
+    const stmt = db.prepare(`UPDATE ${tableName} SET status = 'Donated', ngo_name = ? WHERE id = ? AND status = 'Picked Up'`);
+    stmt.run([ngo_name, id], function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        if (this.changes === 0) return res.status(404).json({ error: 'Task not found or not in Picked Up state.' });
+        res.json({ message: 'Task marked as Donated successfully!' });
+    });
+    stmt.finalize();
+});
+
+// 9. Verify Donation (ADMIN ONLY)
+app.post('/api/tasks/verify', authenticateAdmin, (req, res) => {
+    const { id, source } = req.body;
+    if (!id || !source) {
+        return res.status(400).json({ error: 'Missing required fields: id, source.' });
+    }
+
+    let tableName;
+    if (source === 'donation') tableName = 'donations';
+    else if (source === 'quick_pickup') tableName = 'pickup_requests';
+    else return res.status(400).json({ error: 'Invalid source.' });
+
+    db.run(`UPDATE ${tableName} SET status = 'Verified' WHERE id = ? AND status = 'Donated'`, [id], function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        if (this.changes === 0) return res.status(404).json({ error: 'Task not found or not in Donated state.' });
+        
+        // Find donor details to send notification
+        db.get(`SELECT name, phone, ngo_name FROM ${tableName} WHERE id = ?`, [id], (err, row) => {
+            if (row) {
+                console.log(`\n================================`);
+                console.log(`[SMS NOTIFICATION SENT] To ${row.name} (${row.phone}): `);
+                console.log(`"Your food has been verified and donated at '${row.ngo_name}'! Thank you for your contribution."`);
+                console.log(`================================\n`);
+            }
+            res.json({ message: 'Donation verified and donor notified successfully!' });
+        });
+    });
+});
+
+// 10. Get All Accounts (ADMIN ONLY)
+app.get('/api/accounts', authenticateAdmin, (req, res) => {
+    db.all(`SELECT id, username, role, created_at FROM users ORDER BY created_at DESC`, [], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
+// 11. Change User Role (ADMIN ONLY)
+app.post('/api/accounts/role', authenticateAdmin, (req, res) => {
+    const { id, role } = req.body;
+    if (!id || !role) return res.status(400).json({ error: 'Missing id or role' });
+    if (!['user', 'volunteer', 'admin'].includes(role)) return res.status(400).json({ error: 'Invalid role' });
+
+    db.run(`UPDATE users SET role = ? WHERE id = ?`, [role, id], function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: 'Role updated successfully!' });
+    });
 });
 
 // Start the server
